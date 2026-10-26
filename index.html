@@ -1,0 +1,903 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#030605">
+<title>SANTINO | Digital Domain</title>
+
+<style>
+:root {
+    --green: #00ff88;
+    --bg: #030605;
+    --panel: rgba(5, 16, 10, .9);
+    --border: #1b3b29;
+    --muted: #779285;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    min-height: 100%;
+    background: var(--bg);
+    scroll-behavior: smooth;
+}
+
+body {
+    min-height: 100vh;
+    min-height: 100svh;
+    overflow-x: hidden;
+    background: var(--bg);
+    color: white;
+    font-family: Consolas, "Courier New", monospace;
+    -webkit-font-smoothing: antialiased;
+}
+
+body.intro-active {
+    overflow: hidden;
+}
+
+button, a {
+    -webkit-tap-highlight-color: transparent;
+}
+
+#matrix {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: .3;
+}
+
+.scanlines {
+    position: fixed;
+    inset: 0;
+    z-index: 8;
+    pointer-events: none;
+    opacity: .28;
+    background: repeating-linear-gradient(
+        to bottom,
+        transparent 0,
+        transparent 3px,
+        rgba(0,255,100,.035) 4px
+    );
+}
+
+.vignette {
+    position: fixed;
+    inset: 0;
+    z-index: 1;
+    pointer-events: none;
+    background: radial-gradient(
+        ellipse at center,
+        transparent 15%,
+        rgba(0,0,0,.62) 100%
+    );
+}
+
+/* INTRO */
+
+#intro {
+    position: fixed;
+    inset: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    background: rgba(1, 4, 2, .97);
+    opacity: 1;
+    visibility: visible;
+    transition: opacity 1.2s ease, visibility 1.2s ease;
+}
+
+#intro.fade-out {
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+}
+
+.terminal {
+    width: min(740px, 100%);
+    max-height: calc(100svh - 40px);
+    overflow: hidden;
+    border: 1px solid #164b30;
+    background: rgba(2, 10, 5, .97);
+    box-shadow: 0 0 45px rgba(0,255,136,.08);
+}
+
+.terminal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    padding: 13px 16px;
+    border-bottom: 1px solid #164b30;
+    background: #07140c;
+    color: #8ab99b;
+    font-size: 11px;
+    letter-spacing: 1px;
+}
+
+.terminal-dots {
+    color: var(--green);
+    letter-spacing: 4px;
+}
+
+.terminal-body {
+    padding: clamp(16px, 4vw, 28px);
+    min-height: 280px;
+    font-size: clamp(10px, 1.8vw, 13px);
+    line-height: 2;
+    overflow-wrap: anywhere;
+}
+
+.terminal-line {
+    opacity: 0;
+    animation: lineIn .25s ease forwards;
+}
+
+@keyframes lineIn {
+    to { opacity: 1; }
+}
+
+.green { color: var(--green); }
+.muted { color: #6d917a; }
+.white { color: #e9fff0; }
+
+.progress-track {
+    height: 2px;
+    margin-top: 18px;
+    background: #102419;
+}
+
+.progress-bar {
+    width: 0;
+    height: 100%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    transition: width .25s linear;
+}
+
+.cursor::after {
+    content: "▋";
+    color: var(--green);
+    animation: blink .7s steps(1) infinite;
+}
+
+@keyframes blink {
+    50% { opacity: 0; }
+}
+
+/* MAIN */
+
+#main {
+    position: relative;
+    z-index: 2;
+    min-height: 100vh;
+    min-height: 100svh;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 85px 24px 80px;
+    text-align: center;
+    opacity: 0;
+    transform: translateY(20px);
+    pointer-events: none;
+    transition: opacity 1.3s ease, transform 1.3s ease;
+}
+
+#main.show {
+    opacity: 1;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.eyebrow {
+    margin-bottom: 27px;
+    color: var(--green);
+    font-size: 10px;
+    letter-spacing: 6px;
+    animation: pulse 3s infinite;
+}
+
+@keyframes pulse {
+    50% { opacity: .55; }
+}
+
+/* SANTINO TITLE */
+
+.name-title {
+    display: inline-flex;
+    align-items: baseline;
+    justify-content: center;
+    max-width: 100%;
+    font-family: Arial, Helvetica, sans-serif;
+    font-size: clamp(60px, 13vw, 150px);
+    font-weight: 950;
+    line-height: 1;
+    letter-spacing: -.065em;
+    text-transform: uppercase;
+    user-select: none;
+}
+
+.san {
+    color: #f7f7f7;
+    text-shadow: 0 0 24px rgba(255,255,255,.12);
+}
+
+.tino {
+    position: relative;
+    display: inline-block;
+    color: var(--green);
+    margin-left: .04em;
+    text-shadow:
+        0 0 10px rgba(0,255,136,.65),
+        0 0 35px rgba(0,255,136,.18);
+    animation: lag 3.7s infinite steps(1);
+    will-change: transform, opacity, filter;
+}
+
+.tino::before,
+.tino::after {
+    content: attr(data-text);
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    pointer-events: none;
+}
+
+.tino::before {
+    color: #fff;
+    text-shadow: -3px 0 #fff;
+    animation: glitchTop 3.1s infinite steps(1);
+}
+
+.tino::after {
+    color: var(--green);
+    text-shadow: 3px 0 var(--green);
+    animation: glitchBottom 2.6s infinite steps(1);
+}
+
+@keyframes lag {
+    0%, 12%, 15%, 38%, 41%, 70%, 73%, 100% {
+        opacity: 1;
+        transform: translate(0,0) skewX(0);
+        filter: none;
+    }
+    13% {
+        opacity: .2;
+        transform: translateX(-8px);
+        filter: blur(2px);
+    }
+    14% {
+        opacity: .9;
+        transform: translateX(5px);
+    }
+    39% {
+        opacity: .3;
+        transform: translate(4px,1px) skewX(-12deg);
+        filter: blur(1px);
+    }
+    40% {
+        opacity: 1;
+        transform: translateX(-2px);
+    }
+    71% {
+        opacity: .15;
+        transform: translateX(10px);
+        filter: blur(2px);
+    }
+    72% {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@keyframes glitchTop {
+    0%, 76%, 100% {
+        clip-path: inset(0 0 100% 0);
+        transform: translateX(0);
+    }
+    77% {
+        clip-path: inset(0 0 48% 0);
+        transform: translateX(-8px);
+    }
+    79% {
+        clip-path: inset(12% 0 35% 0);
+        transform: translateX(6px);
+    }
+    81% {
+        clip-path: inset(0 0 100% 0);
+    }
+}
+
+@keyframes glitchBottom {
+    0%, 53%, 100% {
+        clip-path: inset(100% 0 0 0);
+        transform: translateX(0);
+    }
+    54% {
+        clip-path: inset(55% 0 0 0);
+        transform: translateX(7px);
+    }
+    56% {
+        clip-path: inset(76% 0 0 0);
+        transform: translateX(-5px);
+    }
+    58% {
+        clip-path: inset(100% 0 0 0);
+    }
+}
+
+.subtitle {
+    margin-top: 24px;
+    color: #84968a;
+    font-size: 11px;
+    letter-spacing: 5px;
+}
+
+.status {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 9px;
+    margin-top: 17px;
+    color: #789482;
+    font-size: 10px;
+    letter-spacing: 2px;
+}
+
+.status-dot {
+    width: 6px;
+    height: 6px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: var(--green);
+    box-shadow: 0 0 10px var(--green);
+    animation: pulse 1.5s infinite;
+}
+
+.divider {
+    width: min(400px, 90%);
+    height: 1px;
+    margin: 35px auto;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(0,255,136,.65),
+        transparent
+    );
+}
+
+/* TWO DISCORD SERVER CARDS */
+
+.servers {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 14px;
+    width: min(780px, 100%);
+    margin-inline: auto;
+    text-align: left;
+}
+
+.server-card {
+    display: flex;
+    align-items: center;
+    gap: 13px;
+    min-width: 0;
+    padding: 18px;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    transition:
+        transform .25s ease,
+        border-color .25s ease,
+        box-shadow .25s ease;
+}
+
+.server-card:hover {
+    transform: translateY(-4px);
+    border-color: var(--green);
+    box-shadow: 0 0 24px rgba(0,255,136,.09);
+}
+
+.server-icon {
+    display: grid;
+    place-items: center;
+    flex: 0 0 48px;
+    width: 48px;
+    height: 48px;
+    border: 1px solid #28573b;
+    background: #08170e;
+    color: var(--green);
+    font-size: 22px;
+}
+
+.server-info {
+    flex: 1;
+    min-width: 0;
+}
+
+.server-info h2 {
+    margin-bottom: 6px;
+    color: #f4fff7;
+    font-size: 13px;
+    line-height: 1.5;
+    overflow-wrap: anywhere;
+}
+
+.server-info p {
+    color: #73947f;
+    font-size: 9px;
+    line-height: 1.6;
+    letter-spacing: 1px;
+}
+
+.join-button {
+    display: inline-flex;
+    justify-content: center;
+    align-items: center;
+    gap: 8px;
+    min-height: 40px;
+    margin-top: 13px;
+    padding: 11px 15px;
+    border: 1px solid #1d7045;
+    background: rgba(0,255,136,.025);
+    color: var(--green);
+    text-decoration: none;
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 1.5px;
+    transition: background .25s ease, color .25s ease;
+}
+
+.join-button:hover {
+    color: #00190b;
+    background: var(--green);
+}
+
+.footer {
+    position: relative;
+    z-index: 3;
+    width: 100%;
+    padding: 20px 12px;
+    color: #496553;
+    text-align: center;
+    font-size: 9px;
+    letter-spacing: 2px;
+}
+
+.footer span {
+    color: var(--green);
+}
+
+/* TABLET */
+
+@media (max-width: 760px) {
+    #main {
+        padding: 75px 20px 35px;
+    }
+
+    .servers {
+        width: min(520px, 100%);
+        grid-template-columns: 1fr;
+        gap: 12px;
+    }
+
+    .server-card {
+        padding: 16px;
+    }
+
+    .server-info h2 {
+        font-size: 14px;
+    }
+
+    .join-button {
+        min-height: 44px;
+    }
+}
+
+/* MOBILE */
+
+@media (max-width: 480px) {
+    #intro {
+        padding: 14px;
+    }
+
+    .terminal {
+        max-height: calc(100svh - 28px);
+    }
+
+    .terminal-header {
+        padding: 12px;
+        font-size: 9px;
+    }
+
+    .terminal-body {
+        min-height: 250px;
+        padding: 18px 13px;
+        font-size: 11px;
+        line-height: 1.9;
+    }
+
+    #main {
+        padding: 65px 16px 25px;
+    }
+
+    .eyebrow {
+        margin-bottom: 25px;
+        font-size: 9px;
+        letter-spacing: 3px;
+    }
+
+    .name-title {
+        font-size: clamp(55px, 15.5vw, 76px);
+        letter-spacing: -.06em;
+    }
+
+    .subtitle {
+        margin-top: 20px;
+        font-size: 9px;
+        letter-spacing: 2.5px;
+    }
+
+    .divider {
+        margin: 28px auto;
+    }
+
+    .server-card {
+        gap: 12px;
+        padding: 14px;
+    }
+
+    .server-icon {
+        flex-basis: 43px;
+        width: 43px;
+        height: 43px;
+    }
+
+    .server-info h2 {
+        font-size: 12px;
+    }
+
+    .server-info p {
+        font-size: 8px;
+        letter-spacing: .5px;
+    }
+
+    .join-button {
+        width: 100%;
+        margin-top: 11px;
+        font-size: 10px;
+    }
+
+    .footer {
+        font-size: 8px;
+        letter-spacing: 1.5px;
+    }
+}
+
+/* EXTRA SMALL PHONES */
+
+@media (max-width: 340px) {
+    .name-title {
+        font-size: 52px;
+    }
+
+    .server-card {
+        gap: 9px;
+        padding: 11px;
+    }
+
+    .server-icon {
+        flex-basis: 37px;
+        width: 37px;
+        height: 37px;
+        font-size: 18px;
+    }
+}
+
+/* Accessibility */
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        scroll-behavior: auto !important;
+        transition-duration: .01ms !important;
+    }
+}
+</style>
+</head>
+
+<body class="intro-active">
+
+<canvas id="matrix" aria-hidden="true"></canvas>
+<div class="vignette"></div>
+<div class="scanlines"></div>
+
+<!-- CINEMATIC INTRO -->
+<section id="intro" aria-label="Intro animation">
+    <div class="terminal">
+        <div class="terminal-header">
+            <span>SANTINO@SYSTEM:~</span>
+            <span class="terminal-dots">● ● ●</span>
+        </div>
+
+        <div class="terminal-body" id="terminal" aria-live="polite">
+            <div class="terminal-line green">
+                VISUAL INTERFACE INITIALIZATION
+            </div>
+            <div class="progress-track">
+                <div class="progress-bar" id="progress"></div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- MAIN PAGE -->
+<main id="main">
+    <div class="eyebrow">◆ DIGITAL IDENTITY ◆</div>
+
+    <h1 class="name-title" aria-label="SANTINO">
+        <span class="san">SAN</span><span class="tino" data-text="TINO">TINO</span>
+    </h1>
+
+    <p class="subtitle">WELCOME TO MY DOMAIN</p>
+
+    <div class="status">
+        <span class="status-dot"></span>
+        <span>SYSTEM ONLINE</span>
+    </div>
+
+    <div class="divider"></div>
+
+    <!-- DISCORD SERVER 1 -->
+    <section class="servers" aria-label="Discord communities">
+
+        <article class="server-card">
+            <div class="server-icon" aria-hidden="true">⌘</div>
+
+            <div class="server-info">
+                <h2 id="serverName1">YOUR FIRST SERVER</h2>
+                <p>CHILL // PACK</p>
+
+                <a
+                    class="join-button"
+                    id="serverLink1"
+                    href="https://discord.gg/YOURINVITE1"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    JOIN SERVER ↗
+                </a>
+            </div>
+        </article>
+
+        <!-- DISCORD SERVER 2 -->
+        <article class="server-card">
+            <div class="server-icon" aria-hidden="true">⌘</div>
+
+            <div class="server-info">
+                <h2 id="serverName2">YOUR SECOND SERVER</h2>
+                <p>UNKNOWN // CODE</p>
+
+                <a
+                    class="join-button"
+                    id="serverLink2"
+                    href="https://discord.gg/YOURINVITE2"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                >
+                    JOIN SERVER ↗
+                </a>
+            </div>
+        </article>
+
+    </section>
+</main>
+
+<footer class="footer">
+    SANTINO <span>●</span> DIGITAL DOMAIN © 2026
+</footer>
+
+<script>
+"use strict";
+
+/* ==========================================
+   CUSTOMIZE YOUR TWO DISCORD SERVERS HERE
+========================================== */
+
+const CONFIG = {
+    server1: {
+        name: "Suade",
+        invite: "https://discord.gg/CuN5c2SkRW"
+    },
+
+    server2: {
+        name: "Redacted",
+        invite: "https://discord.gg/VrCfktnnD9"
+    }
+};
+
+/* Safely apply server names and invite links */
+
+function setupServer(number, settings) {
+    document.getElementById("serverName" + number).textContent =
+        settings.name;
+
+    const link = document.getElementById("serverLink" + number);
+    link.href = settings.invite;
+
+    link.addEventListener("click", function(event) {
+        const validInvite =
+            /^https:\/\/discord\.gg\/[a-zA-Z0-9-]+\/?$/.test(settings.invite) ||
+            /^https:\/\/discord\.com\/invite\/[a-zA-Z0-9-]+\/?$/.test(settings.invite);
+
+        const isPlaceholder =
+            !settings.name ||
+            settings.name.includes("YOUR FIRST SERVER") ||
+            settings.name.includes("YOUR SECOND SERVER") ||
+            !validInvite ||
+            settings.invite.includes("YOURINVITE");
+
+        if (isPlaceholder) {
+            event.preventDefault();
+            alert(
+                "Please set the server name and real Discord invite link in the CONFIG section."
+            );
+        }
+    });
+}
+
+setupServer(1, CONFIG.server1);
+setupServer(2, CONFIG.server2);
+
+/* ==========================================
+   CINEMATIC INTRO
+========================================== */
+
+const intro = document.getElementById("intro");
+const main = document.getElementById("main");
+const terminal = document.getElementById("terminal");
+const progress = document.getElementById("progress");
+
+const messages = [
+    { text: "> INITIALIZING SANTINO INTERFACE", color: "green" },
+    { text: "> Loading visual environment...", color: "muted" },
+    { text: "> Synchronizing digital effects...", color: "muted" },
+    { text: "> Establishing simulated session...", color: "muted" },
+    { text: "> Personal identity module loaded.", color: "white" },
+    { text: "> SYSTEM STATUS: READY", color: "green" },
+    { text: "", color: "muted" },
+    { text: "[ ACCESS GRANTED ]", color: "green" },
+    { text: "> Welcome, SANTINO.", color: "white" }
+];
+
+const wait = ms => new Promise(resolve => setTimeout(resolve, ms));
+
+async function playIntro() {
+    for (let i = 0; i < messages.length; i++) {
+        const item = messages[i];
+        const line = document.createElement("div");
+
+        line.className = "terminal-line " + item.color;
+        line.textContent = item.text || "\u00a0";
+
+        terminal.insertBefore(
+            line,
+            terminal.querySelector(".progress-track")
+        );
+
+        progress.style.width =
+            Math.round(((i + 1) / messages.length) * 100) + "%";
+
+        await wait(i === 0 ? 250 : 400);
+    }
+
+    await wait(1000);
+
+    intro.classList.add("fade-out");
+    main.classList.add("show");
+    document.body.classList.remove("intro-active");
+
+    await wait(1300);
+    intro.style.display = "none";
+}
+
+/* ==========================================
+   MATRIX RAIN BACKGROUND
+========================================== */
+
+const canvas = document.getElementById("matrix");
+const ctx = canvas.getContext("2d", { alpha: true });
+
+let width = 0;
+let height = 0;
+let columns = 0;
+let drops = [];
+let frameId = 0;
+
+const fontSize = 14;
+const chars = "アイウエオカキクケコサシスセソタチツテト0123456789ABCDEF";
+
+function resizeCanvas() {
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+    width = window.innerWidth;
+    height = window.innerHeight;
+
+    canvas.width = Math.floor(width * dpr);
+    canvas.height = Math.floor(height * dpr);
+
+    canvas.style.width = width + "px";
+    canvas.style.height = height + "px";
+
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+
+    columns = Math.ceil(width / fontSize);
+
+    drops = Array.from(
+        { length: columns },
+        () => Math.random() * (height / fontSize)
+    );
+}
+
+function drawMatrix() {
+    ctx.fillStyle = "rgba(3, 6, 5, 0.12)";
+    ctx.fillRect(0, 0, width, height);
+
+    ctx.font = fontSize + "px monospace";
+    ctx.fillStyle = "#00ff88";
+
+    for (let i = 0; i < columns; i++) {
+        const char = chars[Math.floor(Math.random() * chars.length)];
+
+        ctx.fillText(char, i * fontSize, drops[i] * fontSize);
+
+        if (
+            drops[i] * fontSize > height &&
+            Math.random() > 0.975
+        ) {
+            drops[i] = 0;
+        }
+
+        drops[i] += 0.45;
+    }
+
+    frameId = requestAnimationFrame(drawMatrix);
+}
+
+window.addEventListener("resize", resizeCanvas, { passive: true });
+
+resizeCanvas();
+drawMatrix();
+
+/* Show the site even if an animation encounters an error */
+
+playIntro().catch(error => {
+    console.error("Intro animation error:", error);
+
+    intro.classList.add("fade-out");
+    main.classList.add("show");
+    document.body.classList.remove("intro-active");
+
+    setTimeout(() => {
+        intro.style.display = "none";
+    }, 1300);
+});
+</script>
+
+</body>
+</html>
